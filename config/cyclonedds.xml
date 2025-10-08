@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CycloneDDS xmlns="https://www.eclipse.org/cyclonedds">
+  <Domain Id="any">
+    <General>
+      <Interfaces>
+<!--        <NetworkInterface name="lo" priority="default" multicast="default"/>-->
+<!--	<NetworkInterface name="enp131s0" priority="default" multicast="default"/>-->
+	<NetworkInterface name="wlp128s20f3" priority="default" multicast="default"/>
+      </Interfaces>
+      <AllowMulticast>default</AllowMulticast>
+      <MaxMessageSize>65500B</MaxMessageSize>
+    </General>
+  </Domain>
+</CycloneDDS>

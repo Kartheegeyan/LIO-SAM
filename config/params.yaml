@@ -36,10 +36,10 @@
     lidarMaxRange: 1000.0                        # default: 1000.0, maximum lidar range to be used
 
     # IMU Settings
-    imuAccNoise: 0.001 #3.9939570888238808e-03
-    imuGyrNoise: 0.001 #1.5636343949698187e-03
+    imuAccNoise: 0.002 #3.9939570888238808e-03
+    imuGyrNoise: 0.002 #1.5636343949698187e-03
     imuAccBiasN: 0.00035 #6.4356659353532566e-05
-    imuGyrBiasN: 8.0e-05  #3.5640318696367613e-05
+    imuGyrBiasN: 0.00025  #3.5640318696367613e-05
 
     imuGravity: 9.80511
     imuRPYWeight: 0.01
@@ -71,12 +71,12 @@
     rotation_tollerance: 1000.0                   # radians
 
     # CPU Params
-    numberOfCores: 8                              # number of cores for mapping optimization
-    mappingProcessInterval: 0.10                  # seconds, regulate mapping frequency
+    numberOfCores: 6                              # number of cores for mapping optimization
+    mappingProcessInterval: 0.09                  # seconds, regulate mapping frequency
 
     # Surrounding map
     surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold
-    surroundingkeyframeAddingAngleThreshold: 0.2  # radians, regulate keyframe adding threshold
+    surroundingkeyframeAddingAngleThreshold: 0.15  # radians, regulate keyframe adding threshold
     surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
     surroundingKeyframeSearchRadius: 80.0         # meters, within n meters scan-to-map optimization
     # (when loop closure disabled)
