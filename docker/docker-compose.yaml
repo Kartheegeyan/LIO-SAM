@@ -26,5 +26,6 @@ services:
       - "/dev/*:/dev/*"
       - "/home/kartheegeyan/workspace/projects/scdf/liosam_ws/src/LIO-SAM/config/params.yaml:/root/ros2_ws/src/LIO-SAM/config/params.yaml"
       - "/home/kartheegeyan/workspace/projects/scdf/liosam_ws/src/LIO-SAM/launch/run.launch.py:/root/ros2_ws/src/LIO-SAM/launch/run.launch.py"
+      - "/home/kartheegeyan/workspace/projects/scdf/liosam_ws/maps/:/root/Downloads/service_LOAM/:rw"
     command: >
       bash -c "source ./install/setup.bash && ros2 launch lio_sam run.launch.py"

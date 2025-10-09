@@ -47,8 +47,13 @@
     imuRPYWeight: 0.01   # weight for roll/pitch in the optimization, default 0.1
                          # Low value = trust lidar more for roll/pitch
     
-    # Lidar -> IMU
-    extrinsicTrans: [0.359, 0.0, 0.233]
+    # Extrinsics Configuration
+    # NOTE: There's an inconsistency in LIO-SAM's code:
+    # - extrinsicRot/RPY: Transform FROM imu frame TO lidar frame (used for measurements)
+    # - extrinsicTrans: Nominally lidar→imu, but works as imu→lidar in practice
+    # 
+    # For our setup: body frame ≈ imu frame, lidar is rotated 90° around Z
+    extrinsicTrans: [0.0, 0.0, 0.107] #[0.359, 0.0, 0.233]
     extrinsicRot: [0.0, -1.0, 0.0,
                    1.0,  0.0, 0.0,
                    0.0,  0.0, 1.0]

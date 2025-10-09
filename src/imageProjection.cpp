@@ -207,30 +207,30 @@ public:
 
     void cloudHandler(const sensor_msgs::msg::PointCloud2::SharedPtr laserCloudMsg)
     {
-        RCLCPP_INFO(get_logger(), "Received point cloud with %d points", laserCloudMsg->width * laserCloudMsg->height);
+        RCLCPP_DEBUG(get_logger(), "Received point cloud with %d points", laserCloudMsg->width * laserCloudMsg->height);
         
         if (!cachePointCloud(laserCloudMsg))
         {
             RCLCPP_WARN(get_logger(), "Failed to cache point cloud");
             return;
         }
-        RCLCPP_INFO(get_logger(), "Point cloud cached successfully");
+        RCLCPP_DEBUG(get_logger(), "Point cloud cached successfully");
 
         if (!deskewInfo())
         {
             RCLCPP_WARN(get_logger(), "Failed to get deskew info");
             return;
         }
-        RCLCPP_INFO(get_logger(), "Deskew info obtained successfully");
+        RCLCPP_DEBUG(get_logger(), "Deskew info obtained successfully");
 
         projectPointCloud();
-        RCLCPP_INFO(get_logger(), "Point cloud projected");
+        RCLCPP_DEBUG(get_logger(), "Point cloud projected");
 
         cloudExtraction();
-        RCLCPP_INFO(get_logger(), "Cloud extraction completed");
+        RCLCPP_DEBUG(get_logger(), "Cloud extraction completed");
 
         publishClouds();
-        RCLCPP_INFO(get_logger(), "Clouds published successfully");
+        RCLCPP_DEBUG(get_logger(), "Clouds published successfully");
 
         resetParameters();
     }
@@ -337,9 +337,9 @@ public:
         std::lock_guard<std::mutex> lock1(imuLock);
         std::lock_guard<std::mutex> lock2(odoLock);
 
-        RCLCPP_INFO(get_logger(), "Checking deskew info - IMU queue size: %ld, Odom queue size: %ld", 
+        RCLCPP_DEBUG(get_logger(), "Checking deskew info - IMU queue size: %ld, Odom queue size: %ld", 
                    imuQueue.size(), odomQueue.size());
-        RCLCPP_INFO(get_logger(), "Scan time: cur=%.3f, end=%.3f", timeScanCur, timeScanEnd);
+        RCLCPP_DEBUG(get_logger(), "Scan time: cur=%.3f, end=%.3f", timeScanCur, timeScanEnd);
 
         // make sure IMU data available for the scan
         if (imuQueue.empty() ||
