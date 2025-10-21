@@ -1803,19 +1803,19 @@ class mapOptimization : public ParamServer {
     // trans_odom_to_lidar.child_frame_id = "lidar_link";
     // br->sendTransform(trans_odom_to_lidar);
 
-    // Publish TF (Keep original: Odom -> Lidar for other LIO-SAM nodes)
+    // Publish TF (Corrected: Map -> lidar_link)
     quat_tf.setRPY(transformTobeMapped[0], transformTobeMapped[1],
                    transformTobeMapped[2]);
-    tf2::Transform t_odom_to_lidar = tf2::Transform(
+    tf2::Transform t_map_to_lidar = tf2::Transform(
         quat_tf, tf2::Vector3(transformTobeMapped[3], transformTobeMapped[4],
                               transformTobeMapped[5]));
     tf2::TimePoint time_point = tf2_ros::fromRclcpp(timeLaserInfoStamp);
-    tf2::Stamped<tf2::Transform> temp_odom_to_lidar(t_odom_to_lidar, time_point,
-                                                   odometryFrame);
-    geometry_msgs::msg::TransformStamped trans_odom_to_lidar;
-    tf2::convert(temp_odom_to_lidar, trans_odom_to_lidar);
-    trans_odom_to_lidar.child_frame_id = lidarFrame;
-    br->sendTransform(trans_odom_to_lidar);
+    tf2::Stamped<tf2::Transform> temp_map_to_lidar(t_map_to_lidar, time_point,
+                                                   mapFrame);
+    geometry_msgs::msg::TransformStamped trans_map_to_lidar;
+    tf2::convert(temp_map_to_lidar, trans_map_to_lidar);
+    trans_map_to_lidar.child_frame_id = "lidar_link";
+    br->sendTransform(trans_map_to_lidar);
 
     // Calculate and publish map -> odom transform
     calculateMapToOdomTF();
@@ -1914,56 +1914,36 @@ class mapOptimization : public ParamServer {
   }
 
   void calculateMapToOdomTF() {
+    geometry_msgs::msg::TransformStamped t_hesai_to_odom;
+    geometry_msgs::msg::TransformStamped t_map_to_lidar;
     try {
-      // Get transformation base_link -> odom (from IMU preintegration)
-      geometry_msgs::msg::TransformStamped t_base_to_odom = 
-          tfBuffer->lookupTransform(odometryFrame, baselinkFrame, timeLaserInfoStamp,
+      // Get transformation hesai_lidar -> odom
+      t_hesai_to_odom = tfBuffer->lookupTransform(odometryFrame, lidarFrame,
+                                                 timeLaserInfoStamp,
+                                                 tf2::durationFromSec(0.1));
+      // Get transformation map -> lidar_link
+      t_map_to_lidar =
+          tfBuffer->lookupTransform("lidar_link", mapFrame, timeLaserInfoStamp,
                                     tf2::durationFromSec(0.1));
-      
-      // Get static transform lidar -> base_link
-      geometry_msgs::msg::TransformStamped t_lidar_to_base = 
-          tfBuffer->lookupTransform(baselinkFrame, lidarFrame, timeLaserInfoStamp,
-                                    tf2::durationFromSec(0.1));
-      
-      // We have the SLAM-optimized transform in map coordinates (transformTobeMapped)
-      tf2::Quaternion quat_map_lidar;
-      quat_map_lidar.setRPY(transformTobeMapped[0], transformTobeMapped[1], transformTobeMapped[2]);
-      tf2::Transform tf_map_to_lidar;
-      tf_map_to_lidar.setRotation(quat_map_lidar);
-      tf_map_to_lidar.setOrigin(tf2::Vector3(transformTobeMapped[3], transformTobeMapped[4], transformTobeMapped[5]));
-      
-      // Convert other transforms
-      tf2::Transform tf_base_to_odom, tf_lidar_to_base;
-      tf2::fromMsg(t_base_to_odom.transform, tf_base_to_odom);
-      tf2::fromMsg(t_lidar_to_base.transform, tf_lidar_to_base);
-      
-      // Calculate: map -> odom = (map -> lidar) * (lidar -> base) * (base -> odom)
-      tf2::Transform tf_map_to_odom = tf_map_to_lidar * tf_lidar_to_base * tf_base_to_odom;
-      
-      // Publish transformation map -> odom
-      geometry_msgs::msg::TransformStamped t_map_to_odom;
-      t_map_to_odom.header.stamp = timeLaserInfoStamp;
-      t_map_to_odom.header.frame_id = mapFrame;
-      t_map_to_odom.child_frame_id = odometryFrame;
-      t_map_to_odom.transform = tf2::toMsg(tf_map_to_odom);
-      br->sendTransform(t_map_to_odom);
-      
     } catch (tf2::TransformException& ex) {
-      RCLCPP_WARN(get_logger(), "Could not compute map->odom transform: %s", ex.what());
-      // Publish identity transform as fallback
-      geometry_msgs::msg::TransformStamped t_map_to_odom;
-      t_map_to_odom.header.stamp = timeLaserInfoStamp;
-      t_map_to_odom.header.frame_id = mapFrame;
-      t_map_to_odom.child_frame_id = odometryFrame;
-      t_map_to_odom.transform.translation.x = 0.0;
-      t_map_to_odom.transform.translation.y = 0.0;
-      t_map_to_odom.transform.translation.z = 0.0;
-      t_map_to_odom.transform.rotation.x = 0.0;
-      t_map_to_odom.transform.rotation.y = 0.0;
-      t_map_to_odom.transform.rotation.z = 0.0;
-      t_map_to_odom.transform.rotation.w = 1.0;
-      br->sendTransform(t_map_to_odom);
+      RCLCPP_WARN(get_logger(), "Could not get map to odom transform: %s",
+                  ex.what());
+      return;
     }
+    // Calculate transformation map -> odom
+    // This assumes lidar_link and hesai_lidar represent the same physical pose
+    tf2::Transform tf_hesai_to_odom, tf_map_to_lidar;
+    tf2::fromMsg(t_hesai_to_odom.transform, tf_hesai_to_odom);
+    tf2::fromMsg(t_map_to_lidar.transform, tf_map_to_lidar);
+    tf2::Transform tf_map_to_odom = tf_map_to_lidar * tf_hesai_to_odom;
+
+    // Publish transformation map -> odom
+    geometry_msgs::msg::TransformStamped t_map_to_odom;
+    t_map_to_odom.header.stamp = timeLaserInfoStamp;
+    t_map_to_odom.header.frame_id = mapFrame;
+    t_map_to_odom.child_frame_id = odometryFrame;
+    t_map_to_odom.transform = tf2::toMsg(tf_map_to_odom);
+    br->sendTransform(t_map_to_odom);
   }
 };
 
