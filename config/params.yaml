@@ -73,9 +73,9 @@
     surfFeatureMinValidNum: 100
 
     # voxel filter paprams
-    odometrySurfLeafSize: 0.4                     # default: 0.4 - outdoor, 0.2 - indoor
+    odometrySurfLeafSize: 0.2                     # default: 0.4 - outdoor, 0.2 - indoor
     mappingCornerLeafSize: 0.05                    # default: 0.2 - outdoor, 0.1 - indoor
-    mappingSurfLeafSize: 0.1                      # default: 0.4 - outdoor, 0.2 - indoor
+    mappingSurfLeafSize: 0.05                      # default: 0.4 - outdoor, 0.2 - indoor
 
     # robot motion constraint (in case you are using a 2D robot)
     z_tollerance: 1000.0                          # meters
@@ -87,7 +87,7 @@
 
     # Surrounding map
     surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold
-    surroundingkeyframeAddingAngleThreshold: 0.15  # radians, regulate keyframe adding threshold. Lower = more keyframes during rotation
+    surroundingkeyframeAddingAngleThreshold: 0.1  # radians, regulate keyframe adding threshold. Lower = more keyframes during rotation
     surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
     surroundingKeyframeSearchRadius: 80.0         # meters, within n meters scan-to-map optimization. Larger radius helps find correspondences during rotation
     # (when loop closure disabled)
@@ -102,7 +102,7 @@
                                                   # considered for loop closure
     historyKeyframeSearchNum: 25                  # number of hostory key frames will be fused into a
                                                   # submap for loop closure
-    historyKeyframeFitnessScore: 0.3              # icp threshold, the smaller the better alignment
+    historyKeyframeFitnessScore: 0.2              # icp threshold, the smaller the better alignment
 
     # Visualization
     globalMapVisualizationSearchRadius: 1000.0    # meters, global map visualization radius
