@@ -44,7 +44,7 @@
     imuGyrBiasN: 0.00025  #3.5640318696367613e-05
 
     imuGravity: 9.80511
-    imuRPYWeight: 0.01   # weight for roll/pitch in the optimization, default 0.1
+    imuRPYWeight: 0.1   # weight for roll/pitch in the optimization, default 0.1
                          # Low value = trust lidar more for roll/pitch
     
     # Extrinsics Configuration
@@ -52,7 +52,8 @@
     # - extrinsicRot/RPY: Transform FROM imu frame TO lidar frame (used for measurements)
     # - extrinsicTrans: Nominally lidar→imu, but works as imu→lidar in practice
     # 
-    # For our setup: body frame ≈ imu frame, lidar is rotated 90° around Z
+    # For our setup: body frame ≈ imu frame, lidar was rotated 90° around Z (Previous setup)
+    # Current setup has lidar and imu aligned
     # Rz = [cos(theta) -sin(theta) 0.0
     #       sin(theta)  cos(theta) 0.0
     #       0.0         0.0        1.0]
@@ -78,8 +79,8 @@
     mappingSurfLeafSize: 0.05                      # default: 0.4 - outdoor, 0.2 - indoor
 
     # robot motion constraint (in case you are using a 2D robot)
-    z_tollerance: 1000.0                          # meters
-    rotation_tollerance: 1000.0                   # radians
+    z_tollerance: 0.5                          # meters
+    rotation_tollerance: 1.0                   # radians
 
     # CPU Params
     numberOfCores: 6                              # number of cores for mapping optimization
@@ -89,11 +90,11 @@
     surroundingkeyframeAddingDistThreshold: 1.0   # meters, regulate keyframe adding threshold
     surroundingkeyframeAddingAngleThreshold: 0.1  # radians, regulate keyframe adding threshold. Lower = more keyframes during rotation
     surroundingKeyframeDensity: 2.0               # meters, downsample surrounding keyframe poses   
-    surroundingKeyframeSearchRadius: 80.0         # meters, within n meters scan-to-map optimization. Larger radius helps find correspondences during rotation
+    surroundingKeyframeSearchRadius: 120.0         # meters, within n meters scan-to-map optimization. Larger radius helps find correspondences during rotation
     # (when loop closure disabled)
 
     # Loop closure
-    loopClosureEnableFlag: true
+    loopClosureEnableFlag: false
     loopClosureFrequency: 1.0                     # Hz, regulate loop closure constraint add frequency
     surroundingKeyframeSize: 50                   # submap size (when loop closure enabled)
     historyKeyframeSearchRadius: 15.0             # meters, key frame that is within n meters from
